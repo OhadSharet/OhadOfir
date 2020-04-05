@@ -19,9 +19,39 @@ class BinSerchData {
 
 
 public class Warmup {
-//    public static int backtrackingSearch(int[] arr, int x, int fd, int bk, Stack myStack) {
-//        // TODO: implement your code here
-//    }
+    public static int backtrackingSearch(int[] arr, int x, int fd, int bk, Stack myStack) {
+        int xIndex = -1;
+        int searchIndex = 0;
+        int numOfMoves;
+        boolean toStop = false;
+
+        while (!toStop) {
+            numOfMoves = fd;
+            while (numOfMoves > 0 & !toStop) {
+                if (searchIndex < arr.length) {
+                    if (arr[searchIndex] == x) {
+                        xIndex = searchIndex;
+                        toStop = true;
+                    }
+                    else {
+                        myStack.push(arr[searchIndex]);
+                        searchIndex++;
+                        numOfMoves--;
+                    }
+                }
+                else {
+                    toStop = true;
+                }
+            }
+            numOfMoves = bk;
+            while (numOfMoves > 0) {
+                myStack.pop();
+                searchIndex--;
+                numOfMoves--;
+            }
+        }
+        return xIndex;
+   }
 
     public static int consistentBinSearch(int[] arr, int x, Stack stack) {
 
