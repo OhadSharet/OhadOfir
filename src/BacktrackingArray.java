@@ -25,13 +25,34 @@ public class BacktrackingArray implements Array<Integer>, Backtrack {
 
     @Override
     public void insert(Integer x) {
+
         arr[nonEmptyCellsNumber] = x;
         nonEmptyCellsNumber++;
+
+        //value 0 insert
+        int[] insertData = new int [3];
+        insertData[0] = x;
+        insertData[1] = nonEmptyCellsNumber;
+        insertData[2] = 0;
+        stack.push(insertData);
     }
 
     @Override
     public void delete(Integer index) {
-        // TODO: implement your code here
+
+        if (index < nonEmptyCellsNumber) {
+
+            for (int i = index; i < nonEmptyCellsNumber - 1; i++)
+                arr[i] = successor(i);
+            nonEmptyCellsNumber--;
+
+            //value 1 delete
+            int[] deleteData = new int [3];
+            deleteData[0] = arr[index];
+            deleteData[1] = index;
+            deleteData[2] = 1;
+            stack.push(deleteData);
+        }
     }
 
     @Override
@@ -64,7 +85,21 @@ public class BacktrackingArray implements Array<Integer>, Backtrack {
 
     @Override
     public void backtrack() {
-        // TODO: implement your code here
+        int[] backtrackData = (int[]) stack.pop();
+
+        //value 0 insert
+        //value 1 delete
+        if (backtrackData[2] == 0) {
+            int index = backtrackData[1];
+            delete(index);
+        }
+        else {
+            int index = backtrackData[1];
+            for (int i = nonEmptyCellsNumber; i > index; i++)
+                arr[i] = predecessor(i);
+            arr[index] = backtrackData[0];
+            nonEmptyCellsNumber++;
+        }
     }
 
     @Override
@@ -77,6 +112,6 @@ public class BacktrackingArray implements Array<Integer>, Backtrack {
         String toPrint = "";
         for (int i = 0; i < nonEmptyCellsNumber; i++)
             toPrint = toPrint + arr[i] + " ";
-        System.out.println(toPrint.substring(0, toPrint.length() - 2));
+        System.out.println(toPrint.substring(0, toPrint.length() - 1));
     }
 }

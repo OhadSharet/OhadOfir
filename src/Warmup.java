@@ -1,23 +1,3 @@
-
-
-
-
-
-class BinSerchData {
-
-    public int l;
-    public int r;
-
-    public BinSerchData(int l ,int r)
-    {
-        this.l = l;
-        this.r = r;
-    }
-
-}
-
-
-
 public class Warmup {
     public static int backtrackingSearch(int[] arr, int x, int fd, int bk, Stack myStack) {
         int xIndex = -1;
@@ -94,6 +74,19 @@ public class Warmup {
         // if we reach here, then element was
         // not present
         return -1;
+    }
+
+    class BinSerchData {
+
+        public int l;
+        public int r;
+
+        public BinSerchData(int l ,int r)
+        {
+            this.l = l;
+            this.r = r;
+        }
+
     }
 
     private static int isConsistent(int[] arr) {

@@ -36,13 +36,62 @@ public class BacktrackingSortedArray implements Array<Integer>, Backtrack {
 
     @Override
     public void insert(Integer x) {
-        // TODO: implement your code here
-    }
 
+        int middle = 0; // default value (the array is empty)
+
+        if (nonEmptyCellsNumber == 0) {
+            arr[middle] = x;
+            nonEmptyCellsNumber++;
+        }
+        else {
+            //idk why the ++ need to come here
+            nonEmptyCellsNumber++;
+
+            boolean found = false;
+            int low = 0, high = nonEmptyCellsNumber - 1;
+            while (low <= high & !found){
+                middle = (low+high)/2;
+                if(arr[middle] == x){
+                    found = true;
+                }
+                else
+                if (x < arr[middle])
+                    high = middle-1;
+                else
+                    low = middle+1;
+            }
+            for (int i = nonEmptyCellsNumber; i > middle; i--)
+                arr[i] = predecessor(i);
+
+            arr[middle] = x;
+        }
+
+        //value 0 insert
+        int[] insertData = new int [3];
+        insertData[0] = x;
+        insertData[1] = middle;
+        insertData[2] = 0;
+        stack.push(insertData);
+
+
+    }
 
     @Override
     public void delete(Integer index) {
-        // TODO: implement your code here
+
+        if (index < nonEmptyCellsNumber) {
+
+            for (int i = index; i < nonEmptyCellsNumber - 1; i++)
+                arr[i] = successor(i);
+            nonEmptyCellsNumber--;
+
+            //value 1 delete
+            int[] deleteData = new int [3];
+            deleteData[0] = arr[index];
+            deleteData[1] = index;
+            deleteData[2] = 1;
+            stack.push(deleteData);
+        }
     }
 
     @Override
@@ -67,7 +116,18 @@ public class BacktrackingSortedArray implements Array<Integer>, Backtrack {
 
     @Override
     public void backtrack() {
-        // TODO: implement your code here
+        int[] backtrackData = (int[]) stack.pop();
+
+        //value 0 insert
+        //value 1 delete
+        if (backtrackData[2] == 0) {
+            int index = backtrackData[1];
+            delete(index);
+        }
+        else {
+            int data = backtrackData[0];
+            insert(data);
+        }
     }
 
     @Override
@@ -77,6 +137,20 @@ public class BacktrackingSortedArray implements Array<Integer>, Backtrack {
 
     @Override
     public void print() {
-        // TODO: implement your code here
+        String toPrint = "";
+        for (int i = 0; i < nonEmptyCellsNumber; i++)
+            toPrint = toPrint + arr[i] + " ";
+        System.out.println(toPrint.substring(0, toPrint.length() - 1));
+    }
+
+    public static void main(String[] args) {
+        // TODO Auto-generated method stub
+        Stack a = new Stack();
+        int[] A={1, 1, 2, 14, 15,16, 23, 99, 100, 100, 100, 132, 193, 196, 197};
+        BacktrackingSortedArray BSA = new BacktrackingSortedArray(a, 20);
+        for (int i=0; i < A.length; i++) {
+            BSA.insert(A[i]);
+        }
+        BSA.print();
     }
 }
