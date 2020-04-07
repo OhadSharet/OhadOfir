@@ -1,5 +1,7 @@
 public class Warmup {
     public static int backtrackingSearch(int[] arr, int x, int fd, int bk, Stack myStack) {
+
+        //// not verified
         int xIndex = -1;
         int searchIndex = 0;
         int numOfMoves;
@@ -31,61 +33,44 @@ public class Warmup {
             }
         }
         return xIndex;
-   }
+    }
 
-    public static int consistentBinSearch(int[] arr, int x, Stack stack) {
+    public static int consistentBinSearch(int[] arr, int x, Stack myStack) {
 
-        int num_of_steps_back=0;
-        BinSerchData last_step;
-        int l = 0, r = arr.length - 1,m;
-        while (l <= r) {
-            num_of_steps_back = isConsistent(arr);
-            if (num_of_steps_back >0)
-            {
-                for(int i=0;i<num_of_steps_back;i++)
-                {
-                    last_step = (BinSerchData)stack.pop();
-                    l= last_step.l;
-                    r = last_step.r;
+        //// not verified
+        int output = -1;
+        boolean found = false;
+        int low = 0, high = arr.length-1;
+        int[] searchPrevValues;
+
+        while (low <= high & !found){
+            int numOfBackTracks = isConsistent(arr);
+
+            if (numOfBackTracks == 0) {
+                int middle = (low+high) / 2;
+                if (arr[middle] == x) {
+                    output = middle;
+                    found = true;
+                }
+                else {
+                    searchPrevValues = new int[]{low,high};
+                    myStack.push(searchPrevValues);
+                    if (x < arr[middle])
+                        high = middle-1;
+                    else
+                        low = middle+1;
                 }
             }
             else {
-                stack.push(new BinSerchData(l, r));
+                while (numOfBackTracks > 0 & !myStack.isEmpty()) {
+                    searchPrevValues = (int[]) myStack.pop();
+                    low = searchPrevValues[0];
+                    high = searchPrevValues[1];
+                    numOfBackTracks--;
+                }
             }
-
-                m = l + (r - l) / 2;
-
-                // Check if x is present at mid
-                if (arr[m] == x)
-                    return m;
-
-                // If x greater, ignore left half
-                if (arr[m] < x)
-                    l = m + 1;
-
-                    // If x is smaller, ignore right half
-                else
-                    r = m - 1;
-
-
-
         }
-
-        // if we reach here, then element was
-        // not present
-        return -1;
-    }
-
-    class BinSerchData {
-
-        public int l;
-        public int r;
-
-        public BinSerchData(int l ,int r)
-        {
-            this.l = l;
-            this.r = r;
-        }
+        return output;
 
     }
 
@@ -97,5 +82,13 @@ public class Warmup {
         } else {
             return 0;
         }
+    }
+
+    public static void main(String[] args) {
+        // TODO Auto-generated method stub
+        Stack a = new Stack();
+        int[] A={1, 1, 2, 14, 15,16, 23, 99, 100, 100, 100, 132, 193, 196, 197};
+        int r = consistentBinSearch(A, 193, a);
+        System.out.println(r);
     }
 }
