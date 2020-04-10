@@ -28,29 +28,32 @@ public class BacktrackingArray implements Array<Integer>, Backtrack {
         if (nonEmptyCellsNumber == arr.length)
             throw new IndexOutOfBoundsException("The array is full");
 
+        //value 0 insert
+        int[] insertData = new int [3];
+        insertData[0] = 0;
+        insertData[1] = nonEmptyCellsNumber;
+        insertData[2] = x;
+        stack.push(insertData);
+
         arr[nonEmptyCellsNumber] = x;
         nonEmptyCellsNumber++;
-
-        //value 0 insert
-        int[] insertData = new int [2];
-        insertData[0] = x;
-        insertData[1] = 0;
-        stack.push(insertData);
     }
 
     @Override
     public void delete(Integer index) {
 
+        //value 1 delete
+        int[] deleteData = new int [3];
+        deleteData[0] = 1;
+        deleteData[1] = index;
+        deleteData[2] = arr[index];
+        stack.push(deleteData);
+
         if (index < nonEmptyCellsNumber) {
 
-            arr[index] = arr[nonEmptyCellsNumber - 1];
+            for (int i = index; i < nonEmptyCellsNumber - 1; i++)
+                arr[i] = successor(i);
             nonEmptyCellsNumber--;
-
-            //value 1 delete
-            int[] deleteData = new int [2];
-            deleteData[0] = arr[index];
-            deleteData[1] = 1;
-            stack.push(deleteData);
         }
     }
 
@@ -84,20 +87,27 @@ public class BacktrackingArray implements Array<Integer>, Backtrack {
 
     @Override
     public void backtrack() {
-        int[] backtrackData = (int[]) stack.pop();
 
-        //value 0 insert (thus the value need to be deleted)
-        //value 1 delete (thus the value need to be inserted)
-        if (backtrackData[1] == 0) {
-            boolean toStop = false;
-            for (int i = 0; i < nonEmptyCellsNumber & !toStop; i++)
-                if (backtrackData[0] == arr[i]) {
-                    delete(i);
-                    toStop = true;
-                }
-        }
-        else {
-            insert(backtrackData[0]);
+        if (!stack.isEmpty()) {
+            int[] backtrackData = (int[]) stack.pop();
+
+            //value 0 insert (thus the value need to be deleted)
+            //value 1 delete (thus the value need to be inserted)
+            if (backtrackData[0] == 0) {
+                int index = backtrackData[1];
+
+                delete(index);
+                stack.pop();
+            }
+            else {
+                int index = backtrackData[1];
+                for (int i = nonEmptyCellsNumber; i > index; i--)
+                    arr[i] = predecessor(i);
+                System.out.println(backtrackData[2]);
+                arr[index] = backtrackData[2];
+                nonEmptyCellsNumber++;
+            }
+            System.out.println("backtracking performed");
         }
     }
 
@@ -112,5 +122,27 @@ public class BacktrackingArray implements Array<Integer>, Backtrack {
         for (int i = 0; i < nonEmptyCellsNumber; i++)
             toPrint = toPrint + arr[i] + " ";
         System.out.println(toPrint.substring(0, toPrint.length() - 1));
+    }
+
+    public static void main(String[] args) {
+        // TODO Auto-generated method stub
+        Stack a = new Stack();
+        int[] A={1, 9, 2, 14, 15,16, 23, 99, 100, 100, 100, 132, 193, 196, 197};
+        BacktrackingArray BA = new BacktrackingArray(a, 20);
+        for (int i=0; i < A.length; i++) {
+            BA.insert(A[i]);
+        }
+        BA.backtrack();
+        BA.backtrack();
+        BA.insert(9);
+        BA.insert(7);
+        BA.insert(11);
+        BA.print();
+        BA.backtrack();
+        BA.delete(2);
+        BA.print();
+        BA.backtrack();
+        BA.print();
+
     }
 }

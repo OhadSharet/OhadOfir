@@ -12,9 +12,20 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
     public Node getRoot() {
         return root;
     }
-	
+
     public Node search(int x) {
-        // TODO: implement your code here
+        return search(x, root);
+    }
+
+    private Node search(int x, Node searchNode) {
+        if (searchNode == null)
+            return null;
+        else if (((Integer) searchNode.getValue()).intValue() == x)
+            return searchNode;
+        else if (((Integer) searchNode.getValue()).intValue() > x)
+            return search(x, searchNode.left);
+        else
+            return search(x, searchNode.right);
     }
 
     public void insert(BacktrackingBST.Node z) {
@@ -26,19 +37,35 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
     }
 
     public Node minimum() {
-        // TODO: implement your code here
+        return minimum(root);
+    }
+
+    private Node minimum(Node findMin) {
+        if (findMin.left == null)
+            return findMin;
+        else
+            return minimum(findMin.left);
     }
 
     public Node maximum() {
-        // TODO: implement your code here
+        return maximum(root);
+    }
+
+    private Node maximum(Node findMax) {
+        if (findMax.right == null)
+            return findMax;
+        else
+            return minimum(findMax.right);
     }
 
     public Node successor(Node x) {
-        // TODO: implement your code here
+        //not sure
+        return x.right;
     }
 
     public Node predecessor(Node x) {
-        // TODO: implement your code here
+        //not sure
+        return x.left;
     }
 
     @Override
@@ -52,19 +79,54 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
     }
 
     public void printPreOrder(){
-        // TODO: implement your code here
+        String toPrint = "";
+        toPrint = printPreOrder(toPrint, root);
+        System.out.println(toPrint.substring(0, toPrint.length() - 1));
+    }
+
+    private String printPreOrder(String toPrintString, Node toPrint) {
+
+        if (toPrint != null) {
+
+            if (toPrint.left != null)
+                toPrintString = print(toPrintString, toPrint.left);
+
+            toPrintString = toPrintString + toPrint.getKey() + " ";
+
+            if (toPrint.right != null)
+                toPrintString = print(toPrintString, toPrint.right);
+        }
+
+        return toPrintString;
     }
 
     @Override
     public void print() {
-        // TODO: implement your code here
+        String toPrint = "";
+        toPrint = print(toPrint, root);
+        System.out.println(toPrint.substring(0, toPrint.length() - 1));
+    }
+
+    private String print(String toPrintString, Node toPrint) {
+
+        if (toPrint != null) {
+            toPrintString = toPrintString + toPrint.getKey() + " ";
+
+            if (toPrint.left != null)
+                toPrintString = print(toPrintString, toPrint.left);
+
+            if (toPrint.right != null)
+                toPrintString = print(toPrintString, toPrint.right);
+        }
+
+        return toPrintString;
     }
 
     public static class Node{
-    	//These fields are public for grading purposes. By coding conventions and best practice they should be private.
+        //These fields are public for grading purposes. By coding conventions and best practice they should be private.
         public BacktrackingBST.Node left;
         public BacktrackingBST.Node right;
-        
+
         private BacktrackingBST.Node parent;
         private int key;
         private Object value;
