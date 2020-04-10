@@ -87,12 +87,14 @@ public class BacktrackingSortedArray implements Array<Integer>, Backtrack {
 
     @Override
     public Integer minimum() {
-        return arr[0];
+        if (nonEmptyCellsNumber == 0)
+            return -1;
+        return 0;
     }
 
     @Override
     public Integer maximum() {
-        return arr[nonEmptyCellsNumber - 1];
+        return nonEmptyCellsNumber - 1;
     }
 
     @Override

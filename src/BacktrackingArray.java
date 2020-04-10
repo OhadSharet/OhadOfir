@@ -52,27 +52,41 @@ public class BacktrackingArray implements Array<Integer>, Backtrack {
         if (index < nonEmptyCellsNumber) {
 
             for (int i = index; i < nonEmptyCellsNumber - 1; i++)
-                arr[i] = successor(i);
+                arr[i] = arr[i + 1];
             nonEmptyCellsNumber--;
         }
     }
 
     @Override
     public Integer minimum() {
-        int minValue = arr[0];
-        for (int i = 1; i < nonEmptyCellsNumber; i++)
-            if (minValue > arr[i])
-                minValue = arr[i];
-        return minValue;
+
+        if (nonEmptyCellsNumber != 0) {
+            int minValue = arr[0];
+            int index = 0;
+            for (int i = 1; i < nonEmptyCellsNumber; i++)
+                if (minValue > arr[i]) {
+                    minValue = arr[i];
+                    index = i;
+                }
+            return index;
+        }
+        return -1;
     }
 
     @Override
     public Integer maximum() {
-        int maxValue = arr[0];
-        for (int i = 1; i < nonEmptyCellsNumber; i++)
-            if (maxValue < arr[i])
-                maxValue = arr[i];
-        return maxValue;
+
+        if (nonEmptyCellsNumber != 0) {
+            int maxValue = arr[0];
+            int index = 0;
+            for (int i = 1; i < nonEmptyCellsNumber; i++)
+                if (maxValue < arr[i]) {
+                    maxValue = arr[i];
+                    index = i;
+                }
+            return index;
+        }
+        return -1;
     }
 
     @Override
@@ -102,7 +116,7 @@ public class BacktrackingArray implements Array<Integer>, Backtrack {
             else {
                 int index = backtrackData[1];
                 for (int i = nonEmptyCellsNumber; i > index; i--)
-                    arr[i] = predecessor(i);
+                    arr[i] = arr[i - 1];
                 System.out.println(backtrackData[2]);
                 arr[index] = backtrackData[2];
                 nonEmptyCellsNumber++;

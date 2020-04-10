@@ -20,21 +20,86 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
     private Node search(int x, Node searchNode) {
         if (searchNode == null)
             return null;
-        else if (((Integer) searchNode.getValue()).intValue() == x)
+        else if (searchNode.getKey() == x)
             return searchNode;
-        else if (((Integer) searchNode.getValue()).intValue() > x)
+        else if (searchNode.getKey() > x)
             return search(x, searchNode.left);
         else
             return search(x, searchNode.right);
     }
 
     public void insert(BacktrackingBST.Node z) {
-        // TODO: implement your code here
+        if (root == null) {
+            //insert value 0
+            root = z;
+            Object[] insertData = new Object[2];
+            insertData[0] = 0;
+            insertData[1] = z;
+            stack.push(insertData);
+        }
+        else insert(z, root);
     }
 
-    public void delete(Node x) {
-        // TODO: implement your code here
+    private void insert(BacktrackingBST.Node z, Node compareNode) {
+        if (z.getKey() < compareNode.getKey())
+            if (compareNode.left != null)
+                insert(z, compareNode.left);
+            else {
+                //insert value 0
+                z.parent = compareNode;
+                compareNode.left = z;
+                Object[] insertData = new Object[2];
+                insertData[0] = 0;
+                insertData[1] = z;
+                stack.push(insertData);
+            }
+        else if (z.getKey() > compareNode.getKey()) {
+            if (compareNode.right != null)
+                insert(z, compareNode.right);
+            else {
+                //insert value 0
+                z.parent = compareNode;
+                compareNode.right = z;
+                Object[] insertData = new Object[2];
+                insertData[0] = 0;
+                insertData[1] = z;
+                stack.push(insertData);
+            }
+        }
+        // if the value exist z is not inserted
     }
+
+
+    public void delete(Node x) {
+        if (x.left != null | x.right != null) {
+            if (x.left == null) {
+                x.right.parent = x.parent;
+                x.parent.left = x.right;
+                x = x.right;
+            }
+            else if (x.left == null) {
+                x.left.parent = x.parent;
+                x.parent.right = x.right;
+                x = x.left;
+            }
+            else {
+                Node rightMinimum = minimum(x.right);
+                x.key = rightMinimum.getKey();
+                x.value = rightMinimum.getValue();
+
+                delete(rightMinimum);
+            }
+        }
+        else {
+            Node p = x.parent;
+            if (p == null)
+                root = null;
+            else if (p.right == x)
+                p.right = null;
+            else p.left = null;
+        }
+    }
+
 
     public Node minimum() {
         return minimum(root);
@@ -79,32 +144,14 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
     }
 
     public void printPreOrder(){
-        String toPrint = "";
-        toPrint = printPreOrder(toPrint, root);
-        System.out.println(toPrint.substring(0, toPrint.length() - 1));
-    }
-
-    private String printPreOrder(String toPrintString, Node toPrint) {
-
-        if (toPrint != null) {
-
-            if (toPrint.left != null)
-                toPrintString = print(toPrintString, toPrint.left);
-
-            toPrintString = toPrintString + toPrint.getKey() + " ";
-
-            if (toPrint.right != null)
-                toPrintString = print(toPrintString, toPrint.right);
-        }
-
-        return toPrintString;
+        print();
     }
 
     @Override
     public void print() {
-        String toPrint = "";
-        toPrint = print(toPrint, root);
-        System.out.println(toPrint.substring(0, toPrint.length() - 1));
+        String toPrintString = "";
+        toPrintString = print(toPrintString, root);
+        System.out.println(toPrintString.substring(0, toPrintString.length() - 1));
     }
 
     private String print(String toPrintString, Node toPrint) {
@@ -143,6 +190,32 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
         public Object getValue() {
             return value;
         }
+    }
+
+    public static void main(String[] args) {
+        // TODO Auto-generated method stub
+        Stack a = new Stack();
+        Stack b = new Stack();
+        //int[] A={1, 2, 4, 6, 7, 8};
+        BacktrackingBST A = new BacktrackingBST (a, b);
+        Node A1 = new Node (5,null);
+        Node A2 = new Node (1,null);
+        Node A3 = new Node (10,null);
+        Node A4 = new Node (6,null);
+        Node A5 = new Node (7,null);
+        Node A6 = new Node (14,null);
+
+
+        A.insert(A1);
+        A.insert(A2);
+        A.insert(A3);
+        A.insert(A4);
+        A.insert(A5);
+        A.insert(A6);
+        //A.backtrack();
+        //System.out.println (A.search(3));
+        A.delete(A1);
+        A.print();
     }
 
 }
