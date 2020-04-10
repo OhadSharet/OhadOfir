@@ -40,11 +40,13 @@ public class BacktrackingSortedArray implements Array<Integer>, Backtrack {
             throw new IndexOutOfBoundsException("The array is full");
 
         boolean toStop = false;
+        int index = 0;
 
         for (int i = nonEmptyCellsNumber - 1; i >= 0 & !toStop; i--) {
 
             if (x > arr[i]) {
                 arr[i + 1] = x;
+                index = i + 1;
                 toStop = true;
             }
             else
@@ -59,7 +61,7 @@ public class BacktrackingSortedArray implements Array<Integer>, Backtrack {
 
         //value 0 insert
         int[] insertData = new int [2];
-        insertData[0] = x;
+        insertData[0] = index;
         insertData[1] = 0;
         stack.push(insertData);
 
@@ -112,27 +114,12 @@ public class BacktrackingSortedArray implements Array<Integer>, Backtrack {
             //value 0 insert (thus the value need to be deleted)
             //value 1 delete (thus the value need to be inserted)
             if (backtrackData[1] == 0) {
-
-                int index = -1;   // default (not found) value
-                boolean found = false;
-                int low = 0, high = nonEmptyCellsNumber - 1;
-                while (low <= high & !found){
-                    int middle = (low+high)/2;
-                    if(arr[middle] == backtrackData[0]){
-                        index = middle;
-                        found = true;
-                    }
-                    else
-                    if (backtrackData[0] < arr[middle])
-                        high = middle-1;
-                    else
-                        low = middle+1;
-                }
-                delete(index);
-
+                delete(backtrackData[0]);
+                stack.pop();
             }
             else {
                 insert(backtrackData[0]);
+                stack.pop();
             }
             System.out.println("backtracking performed");
         }
