@@ -71,32 +71,85 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
 
 
     public void delete(Node x) {
+
+        //at least 1 son case
         if (x.left != null | x.right != null) {
             if (x.left == null) {
+
+                Object[] deleteData = new Object[3];
+                deleteData[0] = 1;
+                deleteData[1] = "right";
+                deleteData[2] = x;
+                stack.push(deleteData);
+
                 x.right.parent = x.parent;
-                x.parent.left = x.right;
-                x = x.right;
-            }
-            else if (x.left == null) {
-                x.left.parent = x.parent;
                 x.parent.right = x.right;
-                x = x.left;
+            }
+            else if (x.right == null) {
+
+                Object[] deleteData = new Object[3];
+                deleteData[0] = 1;
+                deleteData[1] = "left";
+                deleteData[2] = x;
+                stack.push(deleteData);
+
+                x.left.parent = x.parent;
+                x.parent.left = x.left;
             }
             else {
+                //2 sons case
                 Node rightMinimum = minimum(x.right);
-                x.key = rightMinimum.getKey();
-                x.value = rightMinimum.getValue();
 
-                delete(rightMinimum);
+                Object[] deleteData = new Object[7];
+                deleteData[0] = 1;
+                deleteData[1] = "left and right";
+                deleteData[2] = x;
+                deleteData[3] = rightMinimum;
+                deleteData[4] = rightMinimum.parent;
+                deleteData[5] = rightMinimum.right;
+                deleteData[6] = rightMinimum.left;
+                stack.push(deleteData);
+
+                //update rightMinimum parent *****
+                Node minimumParentUpdate = rightMinimum.parent;
+                boolean xIsFather = false;
+                if (minimumParentUpdate == x)
+                    xIsFather = true;
+
+                if (minimumParentUpdate.right == rightMinimum)
+                    minimumParentUpdate.right = null;
+                else minimumParentUpdate.left = null;
+
+                //update x parent
+                Node xParentUpdate = x.parent;
+                if (xParentUpdate != null)
+                    if (xParentUpdate.right == x)
+                        xParentUpdate.right = rightMinimum;
+                    else xParentUpdate.left = rightMinimum;
+                else root = rightMinimum;
+
+                rightMinimum.right = x.right;
+                rightMinimum.left = x.left;
+                rightMinimum.parent = x.parent;
+
+                if (xIsFather)
+                    x.right = rightMinimum;
             }
         }
         else {
-            Node p = x.parent;
-            if (p == null)
+            //no sons case
+            Object[] deleteData = new Object[3];
+            deleteData[0] = 1;
+            deleteData[1] = "none";
+            deleteData[2] = x;
+            stack.push(deleteData);
+
+            Node nodeParent = x.parent;
+            if (nodeParent == null)
                 root = null;
-            else if (p.right == x)
-                p.right = null;
-            else p.left = null;
+            else if (nodeParent.right == x)
+                nodeParent.right = null;
+            else nodeParent.left = null;
         }
     }
 
@@ -124,18 +177,81 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
     }
 
     public Node successor(Node x) {
-        //not sure
-        return x.right;
+        if (x.right != null)
+            return minimum(x.right);
+        else
+            return x.parent;
     }
 
     public Node predecessor(Node x) {
-        //not sure
-        return x.left;
+        if (x.left != null)
+            return maximum(x.left);
+        else {
+            Node xPredecessor = x.parent;
+            while ((xPredecessor != null) && (successor(xPredecessor) != x))
+                xPredecessor = xPredecessor.parent;
+            return xPredecessor;
+        }
     }
 
     @Override
     public void backtrack() {
-        // TODO: implement your code here
+
+        if (!stack.isEmpty()) {
+            Object[] backtrackData = (Object[]) stack.pop();
+
+            //value 0 insert (thus the value need to be deleted)
+            //value 1 delete (thus the value need to be inserted)
+            if ((Integer) backtrackData[0] == 0) {
+
+                Node toDelete = ((Node) backtrackData[1]);
+                delete(toDelete);
+                redoStack.push(stack.pop());
+
+            }
+            else {
+                Node toInsert = ((Node) backtrackData[2]);
+
+                if (toInsert.parent == null)
+                    root = toInsert;
+                else {
+
+                    //parent connect
+                    if (toInsert.parent.getKey() > toInsert.getKey())
+                        toInsert.parent.left = toInsert;
+                    else toInsert.parent.right = toInsert;
+                }
+
+                //redo stack push
+                Object[] insertData = new Object[2];
+                insertData[0] = 0;
+                insertData[1] = toInsert;
+                redoStack.push(insertData);
+
+                if (((String)backtrackData[1]).toString() == "none") {
+                    //nothing to do
+                }
+                if (((String)backtrackData[1]).toString() == "left") {
+                    toInsert.left.parent = toInsert;
+                }
+                if (((String)backtrackData[1]).toString() == "right") {
+                    toInsert.right.parent = toInsert;
+                }
+                if (((String)backtrackData[1]).toString() == "left and right") {
+                    toInsert.left.parent = toInsert;
+                    toInsert.right.parent = toInsert;
+                    Node toOriginalPlace = ((Node)backtrackData[3]);
+                    toOriginalPlace.parent = ((Node)backtrackData[4]);
+                    toOriginalPlace.left = ((Node)backtrackData[5]);
+                    toOriginalPlace.right = ((Node)backtrackData[6]);
+
+                    if (toOriginalPlace.parent.getKey() > toOriginalPlace.getKey())
+                        toOriginalPlace.parent.left = toOriginalPlace;
+                    else toOriginalPlace.parent.right = toOriginalPlace;
+                }
+            }
+            System.out.println("backtracking performed");
+        }
     }
 
     @Override
@@ -198,12 +314,13 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
         Stack b = new Stack();
         //int[] A={1, 2, 4, 6, 7, 8};
         BacktrackingBST A = new BacktrackingBST (a, b);
-        Node A1 = new Node (5,null);
-        Node A2 = new Node (1,null);
-        Node A3 = new Node (10,null);
-        Node A4 = new Node (6,null);
-        Node A5 = new Node (7,null);
-        Node A6 = new Node (14,null);
+        Node A1 = new Node (4,null);
+        Node A2 = new Node (2,null);
+        Node A3 = new Node (1,null);
+        Node A4 = new Node (3,null);
+        Node A5 = new Node (6,null);
+        Node A6 = new Node (5,null);
+        Node A7 = new Node (7,null);
 
 
         A.insert(A1);
@@ -212,10 +329,13 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
         A.insert(A4);
         A.insert(A5);
         A.insert(A6);
+        A.insert(A7);
         //A.backtrack();
         //System.out.println (A.search(3));
-        A.delete(A1);
+        A.print();
+        A.delete(A7);
+        A.print();
+        A.backtrack();
         A.print();
     }
-
 }

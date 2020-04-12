@@ -91,12 +91,28 @@ public class BacktrackingArray implements Array<Integer>, Backtrack {
 
     @Override
     public Integer successor(Integer index) {
-        return arr[index + 1];
+        int successor = arr[maximum()];
+        int output = -1;
+        if (arr[index] != successor)
+            for (int i = 0; i < nonEmptyCellsNumber; i++)
+                if (arr[i] > arr[index] & arr[i] < successor) {
+                    successor = arr[i];
+                    output = i;
+                }
+        return output;
     }
 
     @Override
     public Integer predecessor(Integer index) {
-        return arr[index - 1];
+        int predecessor = arr[minimum()];
+        int output = -1;
+        if (arr[index] != predecessor)
+            for (int i = 0; i < nonEmptyCellsNumber; i++)
+                if (arr[i] < arr[index] & arr[i] > predecessor) {
+                    predecessor = arr[i];
+                    output = i;
+                }
+        return output;
     }
 
     @Override
@@ -133,9 +149,12 @@ public class BacktrackingArray implements Array<Integer>, Backtrack {
     @Override
     public void print() {
         String toPrint = "";
-        for (int i = 0; i < nonEmptyCellsNumber; i++)
-            toPrint = toPrint + arr[i] + " ";
-        System.out.println(toPrint.substring(0, toPrint.length() - 1));
+
+        if (nonEmptyCellsNumber != 0) {
+            for (int i = 0; i < nonEmptyCellsNumber; i++)
+                toPrint = toPrint + arr[i] + " ";
+            System.out.println(toPrint.substring(0, toPrint.length() - 1));
+        }
     }
 
     public static void main(String[] args) {
