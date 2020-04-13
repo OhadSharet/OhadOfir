@@ -83,7 +83,12 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
                 stack.push(deleteData);
 
                 x.right.parent = x.parent;
-                x.parent.right = x.right;
+
+                if (x.parent != null)
+                    if (x.parent.right == x)
+                        x.parent.right = x.right;
+                    else x.parent.left = x.right;
+                else root = x.right;
             }
             else if (x.right == null) {
 
@@ -94,7 +99,12 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
                 stack.push(deleteData);
 
                 x.left.parent = x.parent;
-                x.parent.left = x.left;
+
+                if (x.parent != null)
+                    if (x.parent.right == x)
+                        x.parent.right = x.left;
+                    else x.parent.left = x.left;
+                else root = x.left;
             }
             else {
                 //2 sons case
@@ -128,12 +138,20 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
                     else xParentUpdate.left = rightMinimum;
                 else root = rightMinimum;
 
-                rightMinimum.right = x.right;
-                rightMinimum.left = x.left;
-                rightMinimum.parent = x.parent;
+                //checking if x is the parent of the right side minimum
+                if(!xIsFather) {
+                    rightMinimum.right = x.right;
+                    rightMinimum.left = x.left;
+                    rightMinimum.parent = x.parent;
 
-                if (xIsFather)
+                    x.left.parent = rightMinimum;
+                    x.right.parent = rightMinimum;
+                }
+                else {
+                    rightMinimum.left = x.left;
+                    x.left.parent = rightMinimum;
                     x.right = rightMinimum;
+                }
             }
         }
         else {
@@ -256,7 +274,63 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
 
     @Override
     public void retrack() {
-        // TODO: implement your code here
+
+        if (!redoStack.isEmpty()) {
+            Object[] retrackData = (Object[]) redoStack.pop();
+
+            //value 0 insert (thus the value need to be deleted)
+            //value 1 delete (thus the value need to be inserted)
+            if ((Integer) retrackData[0] == 0) {
+
+                Node toDelete = ((Node) retrackData[1]);
+                delete(toDelete);
+                stack.push(stack.pop());
+
+            }
+            else {
+                Node toInsert = ((Node) retrackData[2]);
+
+                if (toInsert.parent == null)
+                    root = toInsert;
+                else {
+
+                    //parent connect
+                    if (toInsert.parent.getKey() > toInsert.getKey())
+                        toInsert.parent.left = toInsert;
+                    else toInsert.parent.right = toInsert;
+                }
+
+                //redo stack push
+                Object[] insertData = new Object[2];
+                insertData[0] = 0;
+                insertData[1] = toInsert;
+                stack.push(insertData);
+
+                if (((String)retrackData[1]).toString() == "none") {
+                    //nothing to do
+                }
+                if (((String)retrackData[1]).toString() == "left") {
+                    toInsert.left.parent = toInsert;
+                }
+                if (((String)retrackData[1]).toString() == "right") {
+                    toInsert.right.parent = toInsert;
+                }
+                if (((String)retrackData[1]).toString() == "left and right") {
+                    toInsert.left.parent = toInsert;
+                    toInsert.right.parent = toInsert;
+                    Node toOriginalPlace = ((Node)retrackData[3]);
+                    toOriginalPlace.parent = ((Node)retrackData[4]);
+                    toOriginalPlace.left = ((Node)retrackData[5]);
+                    toOriginalPlace.right = ((Node)retrackData[6]);
+
+                    if (toOriginalPlace.parent.getKey() > toOriginalPlace.getKey())
+                        toOriginalPlace.parent.left = toOriginalPlace;
+                    else toOriginalPlace.parent.right = toOriginalPlace;
+                }
+            }
+            System.out.println("retracking performed");
+        }
+
     }
 
     public void printPreOrder(){
@@ -310,32 +384,114 @@ public class BacktrackingBST implements Backtrack, ADTSet<BacktrackingBST.Node> 
 
     public static void main(String[] args) {
         // TODO Auto-generated method stub
+
+    	/*
+
         Stack a = new Stack();
-        Stack b = new Stack();
-        //int[] A={1, 2, 4, 6, 7, 8};
-        BacktrackingBST A = new BacktrackingBST (a, b);
-        Node A1 = new Node (4,null);
-        Node A2 = new Node (2,null);
-        Node A3 = new Node (1,null);
-        Node A4 = new Node (3,null);
-        Node A5 = new Node (6,null);
+       	Stack b = new Stack();
+       	//int[] A={1, 2, 4, 6, 7, 8};
+       	BacktrackingBST A = new BacktrackingBST (a, b);
+       	Node A1 = new Node (4,null);
+       	Node A2 = new Node (2,null);
+       	Node A3 = new Node (1,null);
+       	Node A4 = new Node (3,null);
+       	Node A5 = new Node (6,null);
         Node A6 = new Node (5,null);
-        Node A7 = new Node (7,null);
+       	Node A7 = new Node (7,null);
 
 
         A.insert(A1);
-        A.insert(A2);
-        A.insert(A3);
-        A.insert(A4);
-        A.insert(A5);
-        A.insert(A6);
-        A.insert(A7);
+       	A.insert(A2);
+       	A.insert(A3);
+       	A.insert(A4);
+   		A.insert(A5);
+       	A.insert(A6);
+       	A.insert(A7);
         //A.backtrack();
-        //System.out.println (A.search(3));
-        A.print();
-        A.delete(A7);
-        A.print();
-        A.backtrack();
-        A.print();
+       	//System.out.println (A.search(3));
+       	A.print();
+       	A.delete(A7);
+       	A.print();
+       	A.backtrack();
+       	A.print();
+       	A.retrack();
+       	A.print();
+
+
+
+
+
+    	Stack a = new Stack();
+       	Stack b = new Stack();
+    	BacktrackingBST A = new BacktrackingBST (a, b);
+
+
+   		Node A1 = new Node ((int)(Math.random()*100)+10,null);
+    	Node A2 = new Node ((int)(Math.random()*100)+10,null);
+    	Node A3 = new Node ((int)(Math.random()*100)+10,null);
+   		Node A4 = new Node ((int)(Math.random()*100)+10,null);
+   		Node A5 = new Node ((int)(Math.random()*100)+10,null);
+   		Node A6 = new Node ((int)(Math.random()*100)+10,null);
+
+    	System.out.println("A1 = "+A1.key+" A2 = "+A2.getKey()+" A3 = "+A3.key+" A4 = "+A4.getKey()+" A5 = "+A5.key+" A6 = "+A6.getKey());
+
+    	A.insert(A1);
+    	A.insert(A2);
+    	A.insert(A3);
+    	A.insert(A4);
+   		A.insert(A5);
+   		A.insert(A6);
+   		A.print();
+    	A.delete(A2);
+    	A.print();d
+   		A.backtrack();
+   		A.print();
+   		A.retrack();
+    	A.print();
+
+    	*/
+
+        // TODO Auto-generated method stub
+
+//		   	int[] A={1, 2, 4, 6, 7, 8};
+
+
+        for (int i = 0; i<10; i++) {
+            Stack a = new Stack();
+            Stack b = new Stack();
+            BacktrackingBST A = new BacktrackingBST (a, b);
+
+
+            Node A1 = new Node ((int)(Math.random()*100)+10,null);
+            Node A2 = new Node ((int)(Math.random()*100)+10,null);
+            Node A3 = new Node ((int)(Math.random()*100)+10,null);
+            Node A4 = new Node ((int)(Math.random()*100)+10,null);
+            Node A5 = new Node ((int)(Math.random()*100)+10,null);
+            Node A6 = new Node ((int)(Math.random()*100)+10,null);
+
+
+    /*
+    		Node A1 = new Node (81,null);
+    		Node A2 = new Node (94,null);
+    		Node A3 = new Node (85,null);
+    		Node A4 = new Node (75,null);
+    		Node A5 = new Node (29,null);
+    		Node A6 = new Node (106,null);    */
+            System.out.println("A1 = "+A1.key+" A2 = "+A2.getKey()+" A3 = "+A3.key+" A4 = "+A4.getKey()+" A5 = "+A5.key+" A6 = "+A6.getKey());
+
+
+            A.insert(A1);
+            A.insert(A2);
+            A.insert(A3);
+            A.insert(A4);
+            A.insert(A5);
+            A.insert(A6);
+            A.print();
+            A.delete(A2);
+            A.print();
+            A.backtrack();
+            A.print();
+        }
+
     }
 }
